@@ -2,9 +2,37 @@
 // A first program in C.
 #include <stdio.h>
 
+
+
 // function main begins program execution 
 int main(void) {
+
+	int length = 0;
+	int width = 0;
+	int area = 0;
+
    printf("Welcome to C!\n");
+
+   // Part 1
+   puts("Enter the length");
+   scanf("%d", &length);
+
+   puts("Enter the width");
+   scanf("%d", &width);
+
+   area = length * width;
+   printf("Length: %d Width: %d and the area is %d\n", length, width, area);
+
+   // Part 3
+   double valueAverage = (length + width) / 2;
+   printf("Average is: %.1f", valueAverage);
+
+   // scanf return code
+  // int returnValue = 1;
+   //returnValue = scanf("%d", &width);
+
+  // return; //!!!//
+
 } // end function main 
 
 
