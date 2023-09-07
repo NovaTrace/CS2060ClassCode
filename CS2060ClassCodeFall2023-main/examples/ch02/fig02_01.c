@@ -11,6 +11,7 @@ int main(void) {
 	int width = 0;
 	int area = 0;
 
+
    printf("Welcome to C!\n");
 
    // Part 1
@@ -24,7 +25,7 @@ int main(void) {
    printf("Length: %d Width: %d and the area is %d\n", length, width, area);
 
    // Part 3
-   double valueAverage = (length + width) / 2;
+   double valueAverage = ((double)length + width) / 2;
    printf("Average is: %.1f", valueAverage);
 
    // scanf return code
