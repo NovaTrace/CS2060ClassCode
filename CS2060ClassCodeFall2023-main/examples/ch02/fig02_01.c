@@ -26,16 +26,23 @@ int main(void) {
 
    // Part 3
    double valueAverage = ((double)length + width) / 2;
-   printf("Average is: %.1f", valueAverage);
+   printf("Average is: %.1f\n", valueAverage);
 
-   // scanf return code
-  // int returnValue = 1;
-   //returnValue = scanf("%d", &width);
+   //Part 6
+   double calculatedArea = calculateArea(length, width);
+   printf("Calculated area is: %.1f\n", calculatedArea);
+
 
   // return; //!!!//
 
 } // end function main 
 
+double calculateArea(double dLength, double dWidth) {
+
+	double dArea = (dLength * dWidth);
+	printf("Double area is: %.1f\n", dArea);
+	return dArea;
+}
 
 
 /**************************************************************************
