@@ -14,7 +14,7 @@ int main(void) {
    int grade = 0; // one grade 
 
    // loop until user types end-of-file key sequence
-   while ((grade = getchar()) != EOF) {
+    while ((grade = getchar()) != EOF) {
 
       // determine which grade was input
       switch (grade) { // switch nested in while
