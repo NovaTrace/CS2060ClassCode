@@ -14,7 +14,10 @@ int main(void) {
       // prompt user for input and obtain value from user 
       printf("%s", "Enter result (1=pass,2=fail): ");
       int result = 0; // one exam result 
-      scanf("%d", &result);
+
+      do {
+          scanf("%d", &result);
+      } while ((result != 1) & (result != 2));
 
       // if result 1, increment passes 
       if (result == 1) {     
