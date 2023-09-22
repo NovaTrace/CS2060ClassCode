@@ -1,3 +1,8 @@
+//Quinn Hackenberg
+//C on Windows 11
+//Description: This code in its current iteration takes a user input and, using predefined parameters, calculated the cost and summery of costs/nights
+//of a rental. 
+
 #include <stdio.h>
 #include <stdbool.h>
 
