@@ -5,11 +5,16 @@
 
 // function prototypes
 void modifyArray(int b[], size_t size); 
-void modifyElement(int e);              
+void modifyElement(int e);       
+void displayArray(int a[], size_t size);
  
-// function main begins program execution
+// function main   program execution
 int main(void) {
    int a[SIZE] = {0, 1, 2, 3, 4}; // initialize array a
+
+   displayArray(a, SIZE);
+
+   printf("Address of a[SIZE] = %p\n", &a);
 
    puts("Effects of passing entire array by reference:\n\nThe "
       "values of the original array are:");
@@ -54,7 +59,16 @@ void modifyElement(int e) {
    printf("Value in modifyElement is %d\n", e);            
 } 
 
+void displayArray(int a[], size_t size) {
+    
+    puts("Display of array:");
 
+    for (size_t i = 0; i < size; i++) {
+
+        printf("%d ", a[i]);
+    }
+    puts("\n");
+}
 
 /**************************************************************************
  * (C) Copyright 1992-2021 by Deitel & Associates, Inc. and               *
