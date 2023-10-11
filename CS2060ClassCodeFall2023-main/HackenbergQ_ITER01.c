@@ -6,26 +6,28 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-int const SENTINAL_NEG1 = -1;
-
-// Define rates
-double const RENTAL_RATE = 400;
-double const DISCOUNT = 50;
-
-// Define ranges for nights
-unsigned int const MIN_RENTAL_NIGHTS = 1;
-unsigned int const MAX_RENTAL_NIGHTS = 14;
-unsigned int const INTERVAL_1_NIGHTS = 3;
-unsigned int const INTERVAL_2_NIGHTS = 6;
-
 // Function prototypes
-void propertyInformation();
-int userInput();
-void rentalSummery(int totalCost, int totalNights);
-void rentalCost(int daysInput, int cost);
-int costCalculation(int daysInput);
+void printRentalPropertyInfo(unsigned int minNights, unsigned int maxNights, unsigned int
+	interval1Nights, unsigned int interval2Nights, double rate, double discount);
+int getValidInt(int min, int max, int sentinel);
+double calculateCharges(unsigned int nights, unsigned int interval1Nights, unsigned int
+	interval2Nights, double rate, double discount);
+void printNightsCharges(unsigned int nights, double charges);
+
 
 int main(void) {
+
+	int const SENTINAL_NEG1 = -1;
+
+	// Define rates
+	double const RENTAL_RATE = 400;
+	double const DISCOUNT = 50;
+
+	// Define ranges for nights
+	unsigned int const MIN_RENTAL_NIGHTS = 1;
+	unsigned int const MAX_RENTAL_NIGHTS = 14;
+	unsigned int const INTERVAL_1_NIGHTS = 3;
+	unsigned int const INTERVAL_2_NIGHTS = 6;
 
 	int totalCost = 0;
 	int totalNights = 0;
@@ -34,10 +36,11 @@ int main(void) {
 	do {
 
 		// Displays availiable nights and costs
-		propertyInformation();
+		printRentalPropertyInfo(MIN_RENTAL_NIGHTS, MAX_RENTAL_NIGHTS, INTERVAL_1_NIGHTS, 
+			INTERVAL_2_NIGHTS, RENTAL_RATE, DISCOUNT);
 
 		// Requests and validates user input
-		daysInput = userInput();
+		daysInput = getValidInt(MIN_RENTAL_NIGHTS, MAX_RENTAL_NIGHTS, SENTINAL_NEG1);
 
 		// Runs calculations and standard output until program is ended
 		if (daysInput != -1) {
@@ -45,32 +48,36 @@ int main(void) {
 			totalNights += daysInput;
 
 			// Calculates the cost for the selected number of nights
-			int cost = costCalculation(daysInput);
+			int cost = calculateCharges(daysInput, INTERVAL_1_NIGHTS, INTERVAL_2_NIGHTS,
+				RENTAL_RATE, DISCOUNT);
 			totalCost += cost;
 
 			// Displays reciept for the purchase
-			rentalCost(daysInput, cost);
+			puts("Rental Charges\n");
+			printNightsCharges(daysInput, cost);
 		}
 
 	} while (daysInput != -1);
 
 	// Displays program totals when -1 is entered and ends the program
-	rentalSummery(totalCost, totalNights);
+	puts("Rental Prooperty Owner Total Summary\n");
+	printNightsCharges(totalNights, totalCost);
 
 	return 0;
 }
 
 
 
-void propertyInformation() {
+void printRentalPropertyInfo(unsigned int minNights, unsigned int maxNights, unsigned int
+	interval1Nights, unsigned int interval2Nights, double rate, double discount) {
 
-	printf("- Rental propert can be rented for %d to %d nights.\n", MIN_RENTAL_NIGHTS, MAX_RENTAL_NIGHTS);
-	printf("- $%d rate a night for the first %d nights.\n", RENTAL_RATE, INTERVAL_1_NIGHTS);
-	printf("- $%d discounted rate a night for nights %d to %d.\n", RENTAL_RATE - DISCOUNT, INTERVAL_1_NIGHTS + 1, INTERVAL_2_NIGHTS);
-	printf("- $%d discounted rate for each remaining night over %d.\n\n", RENTAL_RATE - DISCOUNT*2, INTERVAL_2_NIGHTS);
+	printf("- Rental propert can be rented for %d to %d nights.\n", minNights, maxNights);
+	printf("- $%3.f rate a night for the first %d nights.\n", rate, interval1Nights);
+	printf("- $%3.f discounted rate a night for nights %d to %d.\n", rate - discount, interval1Nights + 1, interval2Nights);
+	printf("- $%3.f discounted rate for each remaining night over %d.\n\n", rate - discount *2, interval2Nights);
 } 
 
-int userInput() {
+int getValidInt(int min, int max, int sentinel) {
 
 	bool validInput = false;
 	int userInput = 0;
@@ -83,14 +90,14 @@ int userInput() {
 		if (scanf("%d", &userInput) == true) {
 
 			// Ensures input is within valid range
-			if ((userInput == -1) || ((userInput >= MIN_RENTAL_NIGHTS) && (userInput <= MAX_RENTAL_NIGHTS))) {
+			if ((userInput == sentinel) || ((userInput >= min) && (userInput <= max))) {
 
 				validInput = true;
 			}
 
 			else {
 
-				printf("\nError: Input not in valid range.\nPlease enter a value between %d and %d:\n", MIN_RENTAL_NIGHTS, MAX_RENTAL_NIGHTS);
+				printf("\nError: Input not in valid range.\nPlease enter a value between %d and %d:\n", min, max);
 			}
 		}
 
@@ -107,39 +114,35 @@ int userInput() {
 	return userInput;
 }
 
-int costCalculation(int daysInput) {
+double calculateCharges(unsigned int nights, unsigned int interval1Nights, unsigned int
+	interval2Nights, double rate, double discount) {
 
 	int currentCost = 0;
 
-	if (daysInput <= INTERVAL_1_NIGHTS) {
+	if (nights <= interval1Nights) {
 
-		currentCost = RENTAL_RATE * daysInput;
+		currentCost = rate * nights;
 	}
 
-	else if (daysInput <= INTERVAL_2_NIGHTS) {
+	else if (nights <= interval2Nights) {
 
-		currentCost += RENTAL_RATE * INTERVAL_1_NIGHTS;
-		currentCost += (RENTAL_RATE - DISCOUNT) * (daysInput - INTERVAL_1_NIGHTS);
+		currentCost += rate * interval1Nights;
+		currentCost += (rate - discount) * (nights - interval1Nights);
 	}
 
 	else {
 
-		currentCost += RENTAL_RATE * INTERVAL_1_NIGHTS;
-		currentCost += (RENTAL_RATE - DISCOUNT) * (INTERVAL_2_NIGHTS - INTERVAL_1_NIGHTS);
-		currentCost += (RENTAL_RATE - DISCOUNT*2) * (daysInput - INTERVAL_2_NIGHTS);
+		currentCost += rate * interval1Nights;
+		currentCost += (rate - discount) * (interval2Nights - interval1Nights);
+		currentCost += (rate - discount*2) * (nights- interval2Nights);
 	}
 	
 	return currentCost;
 }
 
-void rentalCost(int daysInput, int cost) {
+void printNightsCharges(unsigned int nights, double charges) {
 
-	printf("\n--------------\nRental Charge:\n\nNights\tCharge\n%d\t$%d\n--------------\n\n", daysInput, cost);
-}
-
-void rentalSummery(int totalCost, int totalNights) {
-
-	printf("\n------------------------\nRental property summary:\n\nNights\tCharge\n%d\t$%d\n------------------------\n", totalNights, totalCost);
+	printf("\nNights\tCharge\n%d\t$%.0f\n--------------\n\n", nights, charges);
 }
 
 
