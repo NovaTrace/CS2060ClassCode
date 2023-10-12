@@ -18,7 +18,7 @@ void printNightsCharges(unsigned int nights, double charges);
 
 int main(void) {
 
-	int const SENTINAL_NEG1 = -1;
+	/*int const SENTINEL_NEG1 = -1;
 
 	// Define rates
 	double const RENTAL_RATE = 400;
@@ -29,6 +29,22 @@ int main(void) {
 	unsigned int const MAX_RENTAL_NIGHTS = 14;
 	unsigned int const INTERVAL_1_NIGHTS = 3;
 	unsigned int const INTERVAL_2_NIGHTS = 6;
+*/
+
+
+	unsigned int const SENTINEL_NEG1 = -1;
+
+	unsigned int const MIN_RENTAL_NIGHTS = 2;
+
+	unsigned int const MAX_RENTAL_NIGHTS = 10;
+
+	unsigned int const INTERVAL_1_NIGHTS = 4;
+
+	unsigned int const INTERVAL_2_NIGHTS = 8;
+
+	double const RENTAL_RATE = 450;
+
+	double const DISCOUNT = 75;
 
 	int totalCost = 0;
 	int totalNights = 0;
@@ -39,7 +55,7 @@ int main(void) {
 		printRentalPropertyInfo(MIN_RENTAL_NIGHTS, MAX_RENTAL_NIGHTS, INTERVAL_1_NIGHTS, 
 			INTERVAL_2_NIGHTS, RENTAL_RATE, DISCOUNT);
 
-		daysInput = getValidInt(MIN_RENTAL_NIGHTS, MAX_RENTAL_NIGHTS, SENTINAL_NEG1);
+		daysInput = getValidInt(MIN_RENTAL_NIGHTS, MAX_RENTAL_NIGHTS, SENTINEL_NEG1);
 
 		if (daysInput != -1) {
 
