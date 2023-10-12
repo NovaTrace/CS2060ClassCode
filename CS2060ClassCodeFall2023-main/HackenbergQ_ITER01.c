@@ -1,5 +1,6 @@
-//Quinn Hackenberg
-//C on Windows 11
+//Name: Quinn Hackenberg
+//Class: CS2060 T/R 1:40PM - 2:55PM 
+//Windows OS
 //Description: This code in its current iteration takes a user input and, using predefined parameters, calculated the cost and summery of costs/nights
 //of a rental. 
 
@@ -35,39 +36,36 @@ int main(void) {
 
 	do {
 
-		// Displays availiable nights and costs
 		printRentalPropertyInfo(MIN_RENTAL_NIGHTS, MAX_RENTAL_NIGHTS, INTERVAL_1_NIGHTS, 
 			INTERVAL_2_NIGHTS, RENTAL_RATE, DISCOUNT);
 
-		// Requests and validates user input
 		daysInput = getValidInt(MIN_RENTAL_NIGHTS, MAX_RENTAL_NIGHTS, SENTINAL_NEG1);
 
-		// Runs calculations and standard output until program is ended
 		if (daysInput != -1) {
 
 			totalNights += daysInput;
 
-			// Calculates the cost for the selected number of nights
 			int cost = calculateCharges(daysInput, INTERVAL_1_NIGHTS, INTERVAL_2_NIGHTS,
 				RENTAL_RATE, DISCOUNT);
 			totalCost += cost;
 
-			// Displays reciept for the purchase
 			puts("Rental Charges\n");
 			printNightsCharges(daysInput, cost);
 		}
 
 	} while (daysInput != -1);
 
-	// Displays program totals when -1 is entered and ends the program
 	puts("Rental Prooperty Owner Total Summary\n");
 	printNightsCharges(totalNights, totalCost);
 
 	return 0;
 }
 
-
-
+/*
+* Displays the relevant info for the rental property
+* Parameters: int minNights, int maxNights, int interval1Nights, int interval2Nights, double rate, double discount
+* Returns: void
+*/
 void printRentalPropertyInfo(unsigned int minNights, unsigned int maxNights, unsigned int
 	interval1Nights, unsigned int interval2Nights, double rate, double discount) {
 
@@ -77,6 +75,11 @@ void printRentalPropertyInfo(unsigned int minNights, unsigned int maxNights, uns
 	printf("- $%3.f discounted rate for each remaining night over %d.\n\n", rate - discount *2, interval2Nights);
 } 
 
+/*
+* Requests an input from the user and validates the input
+* Parameters: int min, int max, int sentinel
+* Returns: An int representing the users input
+*/
 int getValidInt(int min, int max, int sentinel) {
 
 	bool validInput = false;
@@ -114,6 +117,11 @@ int getValidInt(int min, int max, int sentinel) {
 	return userInput;
 }
 
+/*
+* Determines the total cost for total amount of nights selected
+* Parameters: int nights, int interval1Nights, int interval2Nights, double rate, double discount
+* Returns: A double representing the total cost
+*/
 double calculateCharges(unsigned int nights, unsigned int interval1Nights, unsigned int
 	interval2Nights, double rate, double discount) {
 
@@ -140,19 +148,12 @@ double calculateCharges(unsigned int nights, unsigned int interval1Nights, unsig
 	return currentCost;
 }
 
+/*
+* Displays the nights and total cost passed to the function
+* Parameters: int nights, double charges
+* Returns: void
+*/
 void printNightsCharges(unsigned int nights, double charges) {
 
 	printf("\nNights\tCharge\n%d\t$%.0f\n--------------\n\n", nights, charges);
 }
-
-
-
-//**Notes**
-
-/*Property Information
-* Parameters:
-* Return:
-* Summary:
-*/
-
-//CONSTANTS ALL CAPS
