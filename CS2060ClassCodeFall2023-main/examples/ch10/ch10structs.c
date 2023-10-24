@@ -34,8 +34,6 @@ int main(void)
 
 	puts("Print after declaration defaultEmployee\n");
 
-
-
 	//What is stored?
 	printf("sizeof  defaultEmployee= %lu\n", sizeof(defaultEmployee));
 	printf("Employee's first name: %s\n", defaultEmployee.firstName);
@@ -175,6 +173,15 @@ void passStructByValue(struct employee employeeTest)
 void passStructByReference(struct employee* employeeTestPtr)
 {
 	puts("In function call - change values in the structure");
+
+	puts("Enter salary: ");
+	scanf("%lf", employeeTestPtr->hourlySalary);
+
+	puts("Enter first name: ");
+	fgets(employeeTestPtr->firstName, NAME_SIZE, stdin);
+
+	puts("Enter last name: ");
+	fgets(employeeTestPtr->lastName, NAME_SIZE, stdin);
 
 	strncpy(employeeTestPtr->firstName, "Dynamic", NAME_SIZE);
 	employeeTestPtr->hourlySalary = 100.00;

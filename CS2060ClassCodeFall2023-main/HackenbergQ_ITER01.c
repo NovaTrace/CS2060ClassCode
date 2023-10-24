@@ -8,17 +8,15 @@
 #include <stdbool.h>
 
 // Function prototypes
-void printRentalPropertyInfo(unsigned int minNights, unsigned int maxNights, unsigned int
-	interval1Nights, unsigned int interval2Nights, double rate, double discount);
+void printRentalPropertyInfo(unsigned int minNights, unsigned int maxNights, unsigned int interval1Nights, unsigned int interval2Nights, double rate, double discount);
 int getValidInt(int min, int max, int sentinel);
-double calculateCharges(unsigned int nights, unsigned int interval1Nights, unsigned int
-	interval2Nights, double rate, double discount);
+double calculateCharges(unsigned int nights, unsigned int interval1Nights, unsigned int interval2Nights, double rate, double discount);
 void printNightsCharges(unsigned int nights, double charges);
 
 
 int main(void) {
 
-	/*int const SENTINEL_NEG1 = -1;
+	int const SENTINEL_NEG1 = -1;
 
 	// Define rates
 	double const RENTAL_RATE = 400;
@@ -29,22 +27,6 @@ int main(void) {
 	unsigned int const MAX_RENTAL_NIGHTS = 14;
 	unsigned int const INTERVAL_1_NIGHTS = 3;
 	unsigned int const INTERVAL_2_NIGHTS = 6;
-*/
-
-
-	unsigned int const SENTINEL_NEG1 = -1;
-
-	unsigned int const MIN_RENTAL_NIGHTS = 2;
-
-	unsigned int const MAX_RENTAL_NIGHTS = 10;
-
-	unsigned int const INTERVAL_1_NIGHTS = 4;
-
-	unsigned int const INTERVAL_2_NIGHTS = 8;
-
-	double const RENTAL_RATE = 450;
-
-	double const DISCOUNT = 75;
 
 	int totalCost = 0;
 	int totalNights = 0;
@@ -82,8 +64,7 @@ int main(void) {
 * Parameters: int minNights, int maxNights, int interval1Nights, int interval2Nights, double rate, double discount
 * Returns: void
 */
-void printRentalPropertyInfo(unsigned int minNights, unsigned int maxNights, unsigned int
-	interval1Nights, unsigned int interval2Nights, double rate, double discount) {
+void printRentalPropertyInfo(unsigned int minNights, unsigned int maxNights, unsigned int interval1Nights, unsigned int interval2Nights, double rate, double discount) {
 
 	printf("- Rental propert can be rented for %d to %d nights.\n", minNights, maxNights);
 	printf("- $%3.f rate a night for the first %d nights.\n", rate, interval1Nights);
@@ -138,8 +119,7 @@ int getValidInt(int min, int max, int sentinel) {
 * Parameters: int nights, int interval1Nights, int interval2Nights, double rate, double discount
 * Returns: A double representing the total cost
 */
-double calculateCharges(unsigned int nights, unsigned int interval1Nights, unsigned int
-	interval2Nights, double rate, double discount) {
+double calculateCharges(unsigned int nights, unsigned int interval1Nights, unsigned int interval2Nights, double rate, double discount) {
 
 	int currentCost = 0;
 
