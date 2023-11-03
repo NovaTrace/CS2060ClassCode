@@ -7,36 +7,72 @@
 #include <stdbool.h>
 #include <string>
 
-//Maximum length of a string
+// Maximum length of a string
 #define STRING_LENGTH 80
-//Two dimensional array storage amounts for rows and columns of surve data
+// Two dimensional array storage amounts for rows and columns of surve data
 #define VACATION_RENTERS 5
 #define RENTER_SURVEY_CATEGORIES 3
-//Rental property login and sentinal values
+// Rental property login and sentinal values
 #define CORRECT_ID "id1"
 #define CORRECT_PASSCODE "ABCD"
 #define LOGIN_MAX_ATTEMPTS 3
 #define SENTINAL_NEG1 -1
-//rental property constant ranges
+// Rental property constant ranges
 #define MIN_RENTAL_NIGHTS 1
 #define MAX_RENTAL_NIGHTS 14
 #define MIN_RATE 1
 #define MAX_RATE 1000
 #define DISCOUNT_MULTIPLIER 2
 
+// Property Info struct
+typedef struct info {
+	int interval1;
+	int interval2;
+	double rate;
+	double discount;
+	char name[STRING_LENGTH];
+	char location[STRING_LENGTH];
+} Info;
+
 // Function prototypes
-void printRentalPropertyInfo(unsigned int minNights, unsigned int maxNights, unsigned int interval1Nights, unsigned int interval2Nights, double rate, double discount);
 int getValidInt(int min, int max, int sentinel);
-double calculateCharges(unsigned int nights, unsigned int interval1Nights, unsigned int interval2Nights, double rate, double discount);
+double calculateCharges(unsigned int userInput, Info *propertyInfo);
 void printNightsCharges(unsigned int nights, double charges);
 
 // New Function prototypes
+setPropertyInfo(Info *propertyInfo);
 bool ownerLogin();
+void printRentalPropertyInfo(Info propertyInfo, int surveyResults[]);
 
 
 int main(void) {
 
 	if (ownerLogin()) {
+
+		Info propertyInfo1;
+		setPropertyInfo(&propertyInfo1);
+		
+		int userInput;
+		int totalNights;
+		double totalCost;
+		do {
+			
+			printRentalPropertyInfo(&propertyInfo1, surveyResults[]);
+
+			///
+			userInput = getValidInt(MIN_RENTAL_NIGHTS, MAX_RENTAL_NIGHTS, SENTINAL_NEG1);
+			///
+			if (userInput != SENTINAL_NEG1) {
+
+				double cost = calculateCharges(userInput, &propertyInfo1);
+				printNightsCharges(userInput, cost);
+				totalNights =
+			}
+			
+			printNightsCharges(totalNights, totalCost);
+		} while (userInput != SENTINAL_NEG1);
+
+		
 
 
 	}
@@ -95,22 +131,49 @@ bool ownerLogin() {
 
 		attemptNum++;
 	}
+
+	return access;
 }
 
-
-
-////////////////////////////////////////////////////////////////
 /*
-* Displays the relevant info for the rental property
-* Parameters: int minNights, int maxNights, int interval1Nights, int interval2Nights, double rate, double discount
+* Assigns info for property rentals by reference
+* Parameters: Info *propertyInfo
 * Returns: void
 */
-void printRentalPropertyInfo(unsigned int minNights, unsigned int maxNights, unsigned int interval1Nights, unsigned int interval2Nights, double rate, double discount) {
+setPropertyInfo(Info *propertyInfo) {
 
-	printf("- Rental propert can be rented for %d to %d nights.\n", minNights, maxNights);
-	printf("- $%3.f rate a night for the first %d nights.\n", rate, interval1Nights);
-	printf("- $%3.f discounted rate a night for nights %d to %d.\n", rate - discount, interval1Nights + 1, interval2Nights);
-	printf("- $%3.f discounted rate for each remaining night over %d.\n\n", rate - discount *2, interval2Nights);
+	puts("Enter the number of nights until the first discount:");
+	propertyInfo->interval1 = getValidInt(MIN_RENTAL_NIGHTS, MAX_RENTAL_NIGHTS, SENTINAL_NEG1);
+
+	puts("Enter the number of nights until the second discount:");
+	propertyInfo->interval2 = getValidInt(propertyInfo->interval1, MAX_RENTAL_NIGHTS, SENTINAL_NEG1);
+
+	puts("Enter the nightly rental rate:");
+	propertyInfo->rate = getValidInt(MIN_RATE, MAX_RATE, SENTINAL_NEG1);
+
+	puts("Enter the discount:");
+	propertyInfo->discount = getValidInt(MIN_RATE, propertyInfo->rate, SENTINAL_NEG1);
+
+	puts("Enter the property name:");
+	fgets(&propertyInfo->name, STRING_LENGTH, stdin);
+
+	puts("Enter the property location:");
+	fgets(&propertyInfo->location, STRING_LENGTH, stdin);
+}
+
+/*
+* Displays the relevant info for the rental property
+* Parameters: Info *propertyInfo, int surveyResults[]
+* Returns: void
+*/
+void printRentalPropertyInfo(Info *propertyInfo, int surveyResults[]) {
+
+	printf("Name: %s\n", propertyInfo->name);
+	printf("Location: %s\n", propertyInfo->location);
+	printf("- Rental propert can be rented for %d to %d nights.\n", MIN_RENTAL_NIGHTS, MAX_RENTAL_NIGHTS);
+	printf("- $%3.f rate a night for the first %d nights.\n", propertyInfo->rate, propertyInfo->interval1);
+	printf("- $%3.f discounted rate a night for nights %d to %d.\n", propertyInfo->rate - propertyInfo->discount, propertyInfo->interval1 + 1, propertyInfo->interval2);
+	printf("- $%3.f discounted rate for each remaining night over %d.\n\n", propertyInfo->rate - propertyInfo->discount*2, propertyInfo->interval2);
 } 
 
 /*
@@ -122,8 +185,6 @@ int getValidInt(int min, int max, int sentinel) {
 
 	bool validInput = false;
 	int userInput = 0;
-
-	puts("Please enter the number of nights you want to rent the property:");
 
 	while (validInput == false) {
 
@@ -145,7 +206,7 @@ int getValidInt(int min, int max, int sentinel) {
 		// Clears buffer when recieving invalid input
 		else {
 
-			puts("\nError: Input is not valid.\nPlease enter the number of nights you want to rent the property:\n");
+			puts("\nError: Input is not valid.\nPlease enter a value between %d and %d:\n", min, max);
 
 			while ((getchar()) != '\n');
 
@@ -160,26 +221,26 @@ int getValidInt(int min, int max, int sentinel) {
 * Parameters: int nights, int interval1Nights, int interval2Nights, double rate, double discount
 * Returns: A double representing the total cost
 */
-double calculateCharges(unsigned int nights, unsigned int interval1Nights, unsigned int interval2Nights, double rate, double discount) {
+double calculateCharges(unsigned int userInput, Info* propertyInfo) {
 
 	int currentCost = 0;
 
-	if (nights <= interval1Nights) {
+	if (userInput <= propertyInfo->interval1) {
 
-		currentCost = rate * nights;
+		currentCost = propertyInfo->rate * userInput;
 	}
 
-	else if (nights <= interval2Nights) {
+	else if (userInput <= propertyInfo->interval2) {
 
-		currentCost += rate * interval1Nights;
-		currentCost += (rate - discount) * (nights - interval1Nights);
+		currentCost += propertyInfo->rate * propertyInfo->interval1;
+		currentCost += (propertyInfo->rate - propertyInfo->discount) * (userInput - propertyInfo->interval1);
 	}
 
 	else {
 
-		currentCost += rate * interval1Nights;
-		currentCost += (rate - discount) * (interval2Nights - interval1Nights);
-		currentCost += (rate - discount*2) * (nights- interval2Nights);
+		currentCost += propertyInfo->rate * propertyInfo->interval1;
+		currentCost += (propertyInfo->rate - propertyInfo->discount) * (propertyInfo->interval2 - propertyInfo->interval1);
+		currentCost += (propertyInfo->rate - propertyInfo->discount*2) * (userInput- propertyInfo->interval2);
 	}
 	
 	return currentCost;
