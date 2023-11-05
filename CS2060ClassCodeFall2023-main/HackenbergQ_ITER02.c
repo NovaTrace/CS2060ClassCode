@@ -5,7 +5,7 @@
 
 #include <stdio.h>
 #include <stdbool.h>
-#include <string>
+#include <string.h>
 
 // Maximum length of a string
 #define STRING_LENGTH 80
@@ -40,10 +40,11 @@ double calculateCharges(unsigned int userInput, Info *propertyInfo);
 void printNightsCharges(unsigned int nights, double charges);
 
 // New Function prototypes
-setPropertyInfo(Info *propertyInfo);
+void setPropertyInfo(Info *propertyInfo);
 bool ownerLogin();
-void printRentalPropertyInfo(Info propertyInfo, int surveyResults[]);
-
+void printRentalPropertyInfo(Info* propertyInfo, int totalRenters, int surveyResults[][RENTER_SURVEY_CATEGORIES], char surveyCategories[][STRING_LENGTH]);
+void getRatings(int totalRenters, int surveyResults[][RENTER_SURVEY_CATEGORIES], char surveyCategories[][STRING_LENGTH]);
+void printOwnerReport(Info* propertyInfo, int surveyResults[][RENTER_SURVEY_CATEGORIES], int totalRenters, int totalNights, double totalCost);
 
 int main(void) {
 
@@ -52,54 +53,46 @@ int main(void) {
 		Info propertyInfo1;
 		setPropertyInfo(&propertyInfo1);
 		
+		int surveyResults[VACATION_RENTERS][RENTER_SURVEY_CATEGORIES];
+		char surveyCategories[RENTER_SURVEY_CATEGORIES][STRING_LENGTH] = { "Check-in Process", "Cleanliness", "Amenities" };
+
+		bool rentalMode = 1;
 		int userInput;
-		int totalNights;
-		double totalCost;
+		int totalRenters = 0;
+		int totalNights = 0;
+		double totalCost = 0;
 		do {
 			
-			printRentalPropertyInfo(&propertyInfo1, surveyResults[]);
+			printRentalPropertyInfo(&propertyInfo1, totalRenters, surveyResults, surveyResults);
 
-			///
 			userInput = getValidInt(MIN_RENTAL_NIGHTS, MAX_RENTAL_NIGHTS, SENTINAL_NEG1);
-			///
-			if (userInput != SENTINAL_NEG1) {
+			
+			if ((userInput != SENTINAL_NEG1) && (totalRenters < VACATION_RENTERS)) {
 
 				double cost = calculateCharges(userInput, &propertyInfo1);
 				printNightsCharges(userInput, cost);
-				totalNights =
+
+				totalNights += userInput;
+				totalCost += cost;
+				totalRenters++;
+
+				getRatings(totalRenters, surveyResults, surveyCategories);
 			}
 			
-			printNightsCharges(totalNights, totalCost);
-		} while (userInput != SENTINAL_NEG1);
+			else if (totalRenters >= VACATION_RENTERS) {
 
-		
+				puts("Sorry, the maximum amount of renters have made reservations");
+			}
 
+			else if (ownerLogin()) {
 
+				rentalMode = 0;
+			}
+
+		} while (rentalMode);
+
+		printOwnerReport(&propertyInfo1, surveyResults, totalRenters, totalNights, totalCost);
 	}
-
-	do {
-
-		printRentalPropertyInfo(MIN_RENTAL_NIGHTS, MAX_RENTAL_NIGHTS, INTERVAL_1_NIGHTS, 
-			INTERVAL_2_NIGHTS, RENTAL_RATE, DISCOUNT);
-
-		daysInput = getValidInt(MIN_RENTAL_NIGHTS, MAX_RENTAL_NIGHTS, SENTINEL_NEG1);
-
-		if (daysInput != -1) {
-
-			totalNights += daysInput;
-
-			int cost = calculateCharges(daysInput, INTERVAL_1_NIGHTS, INTERVAL_2_NIGHTS,
-				RENTAL_RATE, DISCOUNT);
-			totalCost += cost;
-
-			puts("Rental Charges\n");
-			printNightsCharges(daysInput, cost);
-		}
-
-	} while (daysInput != -1);
-
-	puts("Rental Prooperty Owner Total Summary\n");
-	printNightsCharges(totalNights, totalCost);
 
 	return 0;
 }
@@ -124,7 +117,7 @@ bool ownerLogin() {
 		puts("Enter password");
 		fgets(inputPass, STRING_LENGTH, stdin);
 
-		if ((inputID == CORRECT_ID) && (inputPass == CORRECT_PASSCODE)) {
+		if ((strcmp(inputID, CORRECT_ID) == 0) && (strcmp(inputPass,CORRECT_PASSCODE) == 0)) {
 
 			access = 1;
 		}
@@ -134,47 +127,6 @@ bool ownerLogin() {
 
 	return access;
 }
-
-/*
-* Assigns info for property rentals by reference
-* Parameters: Info *propertyInfo
-* Returns: void
-*/
-setPropertyInfo(Info *propertyInfo) {
-
-	puts("Enter the number of nights until the first discount:");
-	propertyInfo->interval1 = getValidInt(MIN_RENTAL_NIGHTS, MAX_RENTAL_NIGHTS, SENTINAL_NEG1);
-
-	puts("Enter the number of nights until the second discount:");
-	propertyInfo->interval2 = getValidInt(propertyInfo->interval1, MAX_RENTAL_NIGHTS, SENTINAL_NEG1);
-
-	puts("Enter the nightly rental rate:");
-	propertyInfo->rate = getValidInt(MIN_RATE, MAX_RATE, SENTINAL_NEG1);
-
-	puts("Enter the discount:");
-	propertyInfo->discount = getValidInt(MIN_RATE, propertyInfo->rate, SENTINAL_NEG1);
-
-	puts("Enter the property name:");
-	fgets(&propertyInfo->name, STRING_LENGTH, stdin);
-
-	puts("Enter the property location:");
-	fgets(&propertyInfo->location, STRING_LENGTH, stdin);
-}
-
-/*
-* Displays the relevant info for the rental property
-* Parameters: Info *propertyInfo, int surveyResults[]
-* Returns: void
-*/
-void printRentalPropertyInfo(Info *propertyInfo, int surveyResults[]) {
-
-	printf("Name: %s\n", propertyInfo->name);
-	printf("Location: %s\n", propertyInfo->location);
-	printf("- Rental propert can be rented for %d to %d nights.\n", MIN_RENTAL_NIGHTS, MAX_RENTAL_NIGHTS);
-	printf("- $%3.f rate a night for the first %d nights.\n", propertyInfo->rate, propertyInfo->interval1);
-	printf("- $%3.f discounted rate a night for nights %d to %d.\n", propertyInfo->rate - propertyInfo->discount, propertyInfo->interval1 + 1, propertyInfo->interval2);
-	printf("- $%3.f discounted rate for each remaining night over %d.\n\n", propertyInfo->rate - propertyInfo->discount*2, propertyInfo->interval2);
-} 
 
 /*
 * Requests an input from the user and validates the input
@@ -217,6 +169,32 @@ int getValidInt(int min, int max, int sentinel) {
 }
 
 /*
+* Assigns info for property rentals by reference
+* Parameters: Info *propertyInfo
+* Returns: void
+*/
+void setPropertyInfo(Info *propertyInfo) {
+
+	puts("Enter the number of nights until the first discount:");
+	propertyInfo->interval1 = getValidInt(MIN_RENTAL_NIGHTS, MAX_RENTAL_NIGHTS, SENTINAL_NEG1);
+
+	puts("Enter the number of nights until the second discount:");
+	propertyInfo->interval2 = getValidInt(propertyInfo->interval1, MAX_RENTAL_NIGHTS, SENTINAL_NEG1);
+
+	puts("Enter the nightly rental rate:");
+	propertyInfo->rate = getValidInt(MIN_RATE, MAX_RATE, SENTINAL_NEG1);
+
+	puts("Enter the discount:");
+	propertyInfo->discount = getValidInt(MIN_RATE, propertyInfo->rate, SENTINAL_NEG1);
+
+	puts("Enter the property name:");
+	fgets(&propertyInfo->name, STRING_LENGTH, stdin);
+
+	puts("Enter the property location:");
+	fgets(&propertyInfo->location, STRING_LENGTH, stdin);
+}
+
+/*
 * Determines the total cost for total amount of nights selected
 * Parameters: int nights, int interval1Nights, int interval2Nights, double rate, double discount
 * Returns: A double representing the total cost
@@ -247,6 +225,67 @@ double calculateCharges(unsigned int userInput, Info* propertyInfo) {
 }
 
 /*
+* Requests entry from the user and saves inputs in the ratings array
+* Parameters: int ratings[]
+* Returns: void
+*/
+void getRatings(int totalRenters, int surveyResults[][RENTER_SURVEY_CATEGORIES], char surveyCategories[][STRING_LENGTH]) {
+
+	puts("We want to know how your experience was renting our property. \nUsing the rating system 1 to 5 enter your rating for each category:");
+	for (int i = 0; i < RENTER_SURVEY_CATEGORIES; i++) {
+
+		puts("%d: %s", i, surveyCategories[i]);
+	}
+
+	for (int i = 0; i < RENTER_SURVEY_CATEGORIES; i++) {
+
+		puts("Enter your rating for Category %d:", i);
+		surveyResults[totalRenters][i] = getValidInt(1, 5, SENTINAL_NEG1);
+	}
+}
+
+/*
+* Displays the relevant info for the rental property
+* Parameters: Info *propertyInfo, int surveyResults[]
+* Returns: void
+*/
+void printRentalPropertyInfo(Info* propertyInfo, int totalRenters, int surveyResults[][RENTER_SURVEY_CATEGORIES], char surveyCategories[][STRING_LENGTH]) {
+
+	printf("Name: %s\n", propertyInfo->name);
+	printf("Location: %s\n", propertyInfo->location);
+	printf("- Rental propert can be rented for %d to %d nights.\n", MIN_RENTAL_NIGHTS, MAX_RENTAL_NIGHTS);
+	printf("- $%3.f rate a night for the first %d nights.\n", propertyInfo->rate, propertyInfo->interval1);
+	printf("- $%3.f discounted rate a night for nights %d to %d.\n", propertyInfo->rate - propertyInfo->discount, propertyInfo->interval1 + 1, propertyInfo->interval2);
+	printf("- $%3.f discounted rate for each remaining night over %d.\n\n", propertyInfo->rate - propertyInfo->discount * 2, propertyInfo->interval2);
+
+	puts("Survey Results:\n");
+
+	if (totalRenters = 0) {
+
+		puts("No Ratings Currently");
+	}
+
+	else {
+
+		printf("Rating Categories:");
+		for (int i = 0; i < RENTER_SURVEY_CATEGORIES; i++) {
+
+			puts("\t%d.%s", i + 1, surveyCategories[i]);
+		}
+
+		for (int i = 1; i <= totalRenters; i++) {
+
+			printf("\nSurvey %d:\t", i);
+
+			for (int j = 0; j < RENTER_SURVEY_CATEGORIES; j++) {
+
+				printf("\t%d", surveyResults[i][j]);
+			}
+		}
+	}
+}
+
+/*
 * Displays the nights and total cost passed to the function
 * Parameters: int nights, double charges
 * Returns: void
@@ -255,3 +294,25 @@ void printNightsCharges(unsigned int nights, double charges) {
 
 	printf("\nNights\tCharge\n%d\t$%.0f\n--------------\n\n", nights, charges);
 }
+
+/*
+* Displays all pertinent data as a close to the program
+* Parameters: Info* propertyInfo, int surveyResults[][], int totalRenters, int totalNights, double totalCost
+* Returns: void
+*/
+void printOwnerReport(Info* propertyInfo, int surveyResults[][RENTER_SURVEY_CATEGORIES], int totalRenters, int totalNights, double totalCost) {
+
+	puts("Rental Property Report");
+	printf("Name: %s\n", propertyInfo->name);
+	printf("Location: %s\n", propertyInfo->location);
+
+	puts("Rental Property Totals");
+	puts("Renters	Nights	Charges");
+	printf("%d\t%d\t$%f.2\n", totalRenters, totalNights, totalCost);
+
+	puts("Exiting AirUCCS");
+}
+
+// Do functions need to define column count in 2D arrays they take
+// Single line print out without \n in printf?
+// Printing out a string from a string array using character call or pointers?
