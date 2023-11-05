@@ -63,7 +63,7 @@ int main(void) {
 		double totalCost = 0;
 		do {
 			
-			printRentalPropertyInfo(&propertyInfo1, totalRenters, surveyResults, surveyResults);
+			printRentalPropertyInfo(&propertyInfo1, totalRenters, surveyResults, surveyCategories);
 
 			userInput = getValidInt(MIN_RENTAL_NIGHTS, MAX_RENTAL_NIGHTS, SENTINAL_NEG1);
 			
@@ -108,16 +108,18 @@ bool ownerLogin() {
 	bool access = 0;
 	while ((attemptNum < 3) && (access == 0)){
 
-		char* inputID;
-		char* inputPass;
+		char inputID[STRING_LENGTH];
+		char inputPass[STRING_LENGTH];
 
 		puts("Enter username");
-		fgets(inputID, STRING_LENGTH, stdin);
+		fgets(&inputID, STRING_LENGTH, stdin);
+		inputID[strcspn(inputID, "\n")] = '\0';
 
 		puts("Enter password");
-		fgets(inputPass, STRING_LENGTH, stdin);
+		fgets(&inputPass, STRING_LENGTH, stdin);
+		inputPass[strcspn(inputPass, "\n")] = '\0';
 
-		if ((strcmp(inputID, CORRECT_ID) == 0) && (strcmp(inputPass,CORRECT_PASSCODE) == 0)) {
+		if ((strcmp(inputID, CORRECT_ID) == 0) && (strcmp(inputPass, CORRECT_PASSCODE) == 0)) {
 
 			access = 1;
 		}
@@ -158,7 +160,7 @@ int getValidInt(int min, int max, int sentinel) {
 		// Clears buffer when recieving invalid input
 		else {
 
-			puts("\nError: Input is not valid.\nPlease enter a value between %d and %d:\n", min, max);
+			printf("\nError: Input is not valid.\nPlease enter a value between %d and %d:\n", min, max);
 
 			while ((getchar()) != '\n');
 
@@ -231,15 +233,16 @@ double calculateCharges(unsigned int userInput, Info* propertyInfo) {
 */
 void getRatings(int totalRenters, int surveyResults[][RENTER_SURVEY_CATEGORIES], char surveyCategories[][STRING_LENGTH]) {
 
-	puts("We want to know how your experience was renting our property. \nUsing the rating system 1 to 5 enter your rating for each category:");
+	puts("We want to know how your experience was renting our property.");
+	puts("Using the rating system 1 to 5 enter your rating for each category:");
 	for (int i = 0; i < RENTER_SURVEY_CATEGORIES; i++) {
 
-		puts("%d: %s", i, surveyCategories[i]);
+		printf("%d: %s", i, surveyCategories[i]);
 	}
 
 	for (int i = 0; i < RENTER_SURVEY_CATEGORIES; i++) {
 
-		puts("Enter your rating for Category %d:", i);
+		printf("Enter your rating for Category %d:", i);
 		surveyResults[totalRenters][i] = getValidInt(1, 5, SENTINAL_NEG1);
 	}
 }
@@ -258,7 +261,7 @@ void printRentalPropertyInfo(Info* propertyInfo, int totalRenters, int surveyRes
 	printf("- $%3.f discounted rate a night for nights %d to %d.\n", propertyInfo->rate - propertyInfo->discount, propertyInfo->interval1 + 1, propertyInfo->interval2);
 	printf("- $%3.f discounted rate for each remaining night over %d.\n\n", propertyInfo->rate - propertyInfo->discount * 2, propertyInfo->interval2);
 
-	puts("Survey Results:\n");
+	puts("Survey Results:");
 
 	if (totalRenters = 0) {
 
@@ -270,7 +273,7 @@ void printRentalPropertyInfo(Info* propertyInfo, int totalRenters, int surveyRes
 		printf("Rating Categories:");
 		for (int i = 0; i < RENTER_SURVEY_CATEGORIES; i++) {
 
-			puts("\t%d.%s", i + 1, surveyCategories[i]);
+			printf("\t%d.%s", i + 1, surveyCategories[i]);
 		}
 
 		for (int i = 1; i <= totalRenters; i++) {
@@ -316,3 +319,4 @@ void printOwnerReport(Info* propertyInfo, int surveyResults[][RENTER_SURVEY_CATE
 // Do functions need to define column count in 2D arrays they take
 // Single line print out without \n in printf?
 // Printing out a string from a string array using character call or pointers?
+// Initializing char* (userID etc) with '=NULL'?
