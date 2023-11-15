@@ -23,7 +23,7 @@ typedef struct node {
 
 // Function prototypes
 int stringCompare(Pet *pet1, Pet *pet2);
-void insertPets(Node* head);
+void insertPets(Node** headPtr);
 void displayPets(Node* head);
 void writeToFile(Node* head);
 void removePets(Node* head);
@@ -31,11 +31,10 @@ void removeAllPets(Node* head);
 
 int main(void) {
 
-	Node* head = NULL;
-	head->nextPtr = NULL;
-	head = malloc(sizeof(Node));
+	Node* head = malloc(sizeof(Node));
+	Node** headPtr = &head;
 
-	insertPets(head);
+	insertPets(headPtr);
 
 	displayPets(head);
 
@@ -66,12 +65,14 @@ int stringCompare(Pet *pet1, Pet *pet2) {
 }
 
 //Should be 2 functions not 1
-void insertPets(Node *head) {
+void insertPets(Node** headPtr) {
 
-	Pet *pet = NULL;
-	head->data = *pet;
+	Node* currentPtr = *headPtr;
+	Pet *pet = malloc(sizeof(Pet));
+
+	currentPtr->data = *pet;
 	puts("Enter name:");
-	fgets(pet->name, STRING_LENGTH, stdin);
+	fgets(&pet->name, STRING_LENGTH, stdin);
 
 	puts("Enter age:");
 	scanf("%d", &pet->age);
@@ -84,16 +85,14 @@ void insertPets(Node *head) {
 
 	while (addingPets == 'y') {
 
-		Pet* newPet = NULL;
-		newPet = malloc(sizeof(Pet));
+		Pet* newPet = malloc(sizeof(Pet));
 		puts("Enter name:");
-		fgets(newPet->name, STRING_LENGTH, stdin);
+		fgets(&newPet->name, STRING_LENGTH, stdin);
 
 		puts("Enter age:");
 		scanf("%d", &newPet->age);
 		
-		Node *newNode = NULL;
-		newNode = malloc(sizeof(Node));
+		Node *newNode = malloc(sizeof(Node));
 		newNode->data = *newPet;
 
 		bool insert = false;
