@@ -25,6 +25,9 @@
 #define MAX_RATE 1000
 #define DISCOUNT_MULTIPLIER 2
 
+#define MIN_RATINGS 1
+#define MAX_RATINGS 5
+
 // Property Info struct
 typedef struct info {
 	int interval1;
@@ -61,6 +64,7 @@ int main(void) {
 		Info propertyInfo1;
 		setPropertyInfo(&propertyInfo1);
 
+		// Main Rental loop
 		do {
 			
 			printRentalPropertyInfo(&propertyInfo1, totalRenters, surveyResults, surveyCategories);
@@ -72,11 +76,10 @@ int main(void) {
 
 				double cost = calculateCharges(userInput, &propertyInfo1);
 				printNightsCharges(userInput, cost);
+				getRatings(totalRenters, surveyResults, surveyCategories);
 
 				totalNights += userInput;
 				totalCost += cost;
-
-				getRatings(totalRenters, surveyResults, surveyCategories);
 				totalRenters++;
 			}
 			
@@ -125,6 +128,7 @@ bool ownerLogin() {
 
 		attemptNum++;
 
+		// Checks Credentials 
 		if ((strcmp(inputID, CORRECT_ID) == 0) && (strcmp(inputPass, CORRECT_PASSCODE) == 0)) {
 
 			access = 1;
@@ -154,20 +158,14 @@ int getValidInt(int min, int max, int sentinel) {
 
 	bool validInput = false;
 	int userInput = 0;
-
-	char someChar;
-
-	someChar = getchar();
-
+	char extraInput;
 
 	while (validInput == false) {
-
-		//fgets(userInput, STRING_LENGTH, stdin);
 		
 		// Ensures input is an int
-		if (scanf("%d", &userInput) == 1) {
+		if ((scanf("%d", &userInput) == true) && (getchar() == '\n')) {
 
-			someChar = getchar();
+
 			// Ensures input is within valid range
 			if ((userInput == sentinel) || ((userInput >= min) && (userInput <= max))) {
 
@@ -188,7 +186,6 @@ int getValidInt(int min, int max, int sentinel) {
 		}
 	}
 
-	while ((getchar()) != '\n');
 	return userInput;
 }
 
@@ -263,15 +260,16 @@ void getRatings(int totalRenters, int surveyResults[][RENTER_SURVEY_CATEGORIES],
 	puts("We want to know how your experience was renting our property.");
 	puts("Using the rating system 1 to 5 enter your rating for each category:");
 	puts("");
+
 	for (int i = 0; i < RENTER_SURVEY_CATEGORIES; i++) {
 
-		printf("%d: %s\n", i, surveyCategories[i]);
+		printf("%d: %s\n", i + 1, surveyCategories[i]);
 	}
 
 	for (int i = 0; i < RENTER_SURVEY_CATEGORIES; i++) {
 
-		printf("\nEnter your rating for Category %d:\n", i);
-		surveyResults[totalRenters][i] = getValidInt(1, 5, SENTINAL_NEG1);
+		printf("\nEnter your rating for Category %d:\n", i + 1);
+		surveyResults[totalRenters][i] = getValidInt(MIN_RATINGS, MAX_RATINGS, SENTINAL_NEG1);
 	}
 }
 
@@ -282,7 +280,6 @@ void getRatings(int totalRenters, int surveyResults[][RENTER_SURVEY_CATEGORIES],
 */
 void printRentalPropertyInfo(Info* propertyInfo, int totalRenters, int surveyResults[][RENTER_SURVEY_CATEGORIES], char surveyCategories[][STRING_LENGTH]) {
 
-	
 	printf("\n-------------------------------------------------\nName: %s", propertyInfo->name);
 	printf("Location: %s\n", propertyInfo->location);
 	printf("- Rental propert can be rented for %d to %d nights.\n", MIN_RENTAL_NIGHTS, MAX_RENTAL_NIGHTS);
@@ -307,7 +304,7 @@ void printRentalPropertyInfo(Info* propertyInfo, int totalRenters, int surveyRes
 
 		for (int i = 0; i < totalRenters; i++) {
 
-			printf("\nSurvey %d:\t\t\t", i);
+			printf("\nSurvey %d:\t\t\t", i + 1);
 
 			for (int j = 0; j < RENTER_SURVEY_CATEGORIES; j++) {
 
@@ -350,6 +347,7 @@ void printOwnerReport(Info* propertyInfo, int surveyResults[][RENTER_SURVEY_CATE
 
 	puts("Category Rating Averages");
 	puts("------------------------");
+
 	for (int i = 0; i < RENTER_SURVEY_CATEGORIES; i++) {
 
 		int ratingSum = 0;
@@ -365,11 +363,6 @@ void printOwnerReport(Info* propertyInfo, int surveyResults[][RENTER_SURVEY_CATE
 	puts("");
 	puts("Exiting AirUCCS");
 }
-
-
-
-//test file
-
 
 
 // Do functions need to define column count in 2D arrays they take
