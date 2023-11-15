@@ -24,10 +24,10 @@ typedef struct node {
 // Function prototypes
 int stringCompare(Pet *pet1, Pet *pet2);
 void insertPets(Node** headPtr);
-void displayPets(Node* head);
-void writeToFile(Node* head);
-void removePets(Node* head);
-void removeAllPets(Node* head);
+void displayPets(Node** headPtr);
+void writeToFile(Node** headPtr);
+void removePets(Node** headPtr);
+void removeAllPets(Node** headPtr);
 
 int main(void) {
 
@@ -72,7 +72,7 @@ void insertPets(Node** headPtr) {
 
 	currentPtr->data = *pet;
 	puts("Enter name:");
-	fgets(&pet->name, STRING_LENGTH, stdin);
+	fgets(pet->name, STRING_LENGTH, stdin);
 
 	puts("Enter age:");
 	scanf("%d", &pet->age);
@@ -87,7 +87,7 @@ void insertPets(Node** headPtr) {
 
 		Pet* newPet = malloc(sizeof(Pet));
 		puts("Enter name:");
-		fgets(&newPet->name, STRING_LENGTH, stdin);
+		fgets(newPet->name, STRING_LENGTH, stdin);
 
 		puts("Enter age:");
 		scanf("%d", &newPet->age);
@@ -96,18 +96,18 @@ void insertPets(Node** headPtr) {
 		newNode->data = *newPet;
 
 		bool insert = false;
-		Node* currentNode = head;
+		Node* currentNode = *headPtr;
 		Node* previousNode = NULL;
 		while (!insert) {
 
 			if ((stringCompare(&currentNode->data, &newNode->data) > 0 )||(currentNode = NULL)) {
 
-				newNode->nextPtr = &currentNode;
+				newNode->nextPtr = currentNode;
 				insert = true;
 
 				if (previousNode != NULL) {
 
-					previousNode->nextPtr = &newNode;
+					previousNode->nextPtr = newNode;
 				}
 			}
 
@@ -124,9 +124,9 @@ void insertPets(Node** headPtr) {
 	}
 }
 
-void displayPets(Node* head) {
+void displayPets(Node** headPtr) {
 
-	Node *currentNode = &head;
+	Node *currentNode = *headPtr;
 	puts("The names in alphebetical order:");
 	if (head != NULL) {
 
@@ -143,7 +143,7 @@ void displayPets(Node* head) {
 	}
 }
 
-void writeToFile(Node* head) {
+void writeToFile(Node** headPtr) {
 
 	FILE* filePtr;
 	filePtr = fopen("pets.txt", "w");
@@ -156,7 +156,7 @@ void writeToFile(Node* head) {
 	} while (currentNode->nextPtr != NULL);
 }
 
-void removePets(Node* head) {
+void removePets(Node** headPtr) {
 
 	char removingPets = "y";
 	puts("");
@@ -202,7 +202,7 @@ void removePets(Node* head) {
 	}
 }
 
-void removeAllPets(Node* head) {
+void removeAllPets(Node** headPtr) {
 
 	puts("Removing all pets from memory...");
 	Node* currentNode = &head;
