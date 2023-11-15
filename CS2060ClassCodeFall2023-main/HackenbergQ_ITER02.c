@@ -110,7 +110,7 @@ bool ownerLogin() {
 
 	int attemptNum = 0;
 	bool access = 0;
-	while ((attemptNum < 3) && (access == 0)){
+	while ((attemptNum < LOGIN_MAX_ATTEMPTS) && (access == 0)){
 
 		char inputID[STRING_LENGTH];
 		char inputPass[STRING_LENGTH];
@@ -155,11 +155,19 @@ int getValidInt(int min, int max, int sentinel) {
 	bool validInput = false;
 	int userInput = 0;
 
+	char someChar;
+
+	someChar = getchar();
+
+
 	while (validInput == false) {
 
+		//fgets(userInput, STRING_LENGTH, stdin);
+		
 		// Ensures input is an int
-		if (scanf("%d", &userInput) == true) {
+		if (scanf("%d", &userInput) == 1) {
 
+			someChar = getchar();
 			// Ensures input is within valid range
 			if ((userInput == sentinel) || ((userInput >= min) && (userInput <= max))) {
 
@@ -176,9 +184,7 @@ int getValidInt(int min, int max, int sentinel) {
 		else {
 
 			printf("\nError: Input is not valid.\nPlease enter a value between %d and %d:\n", min, max);
-
 			while ((getchar()) != '\n');
-
 		}
 	}
 
@@ -361,6 +367,8 @@ void printOwnerReport(Info* propertyInfo, int surveyResults[][RENTER_SURVEY_CATE
 }
 
 
+
+//test file
 
 
 

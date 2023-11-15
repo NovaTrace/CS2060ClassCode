@@ -85,11 +85,12 @@ void insertPets(Node *head) {
 	while (addingPets == 'y') {
 
 		Pet* newPet = NULL;
+		newPet = malloc(sizeof(Pet));
 		puts("Enter name:");
-		fgets(&newPet->name, STRING_LENGTH, stdin);
+		fgets(newPet->name, STRING_LENGTH, stdin);
 
 		puts("Enter age:");
-		fgets(&newPet->age, STRING_LENGTH, stdin);
+		scanf("%d", &newPet->age);
 		
 		Node *newNode = NULL;
 		newNode = malloc(sizeof(Node));
@@ -217,3 +218,6 @@ void removeAllPets(Node* head) {
 	} while (currentNode->nextPtr != NULL);
 	free(currentNode);
 }
+
+//using malloc or by directly creating a Pet variable.
+// Difference between dynamic allocation and alternative?
