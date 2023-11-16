@@ -9,7 +9,7 @@
 #include <string.h>
 #include <ctype.h>
 
-#define STRING_LENGTH 80
+#define STRING_LENGTH 40
 
 typedef struct pet {
 	int age;
@@ -36,15 +36,15 @@ int main(void) {
 
 	insertPets(headPtr);
 
-	displayPets(head);
+	displayPets(headPtr);
 
-	writeToFile(head);
+	writeToFile(headPtr);
 
-	removePets(head);
+	removePets(headPtr);
 
-	removeAllPets(head);
+	removeAllPets(headPtr);
 
-	displayPets(head);
+	displayPets(headPtr);
 }
 
 int stringCompare(Pet *pet1, Pet *pet2) {
@@ -55,11 +55,19 @@ int stringCompare(Pet *pet1, Pet *pet2) {
 	strcpy(tempChar1, pet1->name);
 	strcpy(tempChar2, pet2->name);
 
-	for (int i = 0; i < STRING_LENGTH; i++) {
+	int i = 0;
+	do {
+
+		tempChar2[i] = tolower(tempChar2[i]);
+		i++;
+	} while (tempChar1[i] != '\n');
+
+	i = 0;
+	do {
 
 		tempChar1[i] = tolower(tempChar1[i]);
-		tempChar2[i] = tolower(tempChar2[i]);
-	}
+		i++;
+	} while (tempChar1[i] != '\n');
 
 	return strcmp(tempChar1, tempChar2);
 }
@@ -70,18 +78,19 @@ void insertPets(Node** headPtr) {
 	Node* currentPtr = *headPtr;
 	Pet *pet = malloc(sizeof(Pet));
 
-	currentPtr->data = *pet;
 	puts("Enter name:");
 	fgets(pet->name, STRING_LENGTH, stdin);
 
 	puts("Enter age:");
 	scanf("%d", &pet->age);
 
+	currentPtr->data = *pet;
 	char addingPets = 'y';
 
 	puts("");
 	puts("Do you want to add another pet? Please enter (y)es or (n)o:");
 	scanf(" %c", &addingPets);
+	getchar();
 
 	while (addingPets == 'y') {
 
@@ -91,7 +100,7 @@ void insertPets(Node** headPtr) {
 
 		puts("Enter age:");
 		scanf("%d", &newPet->age);
-		
+
 		Node *newNode = malloc(sizeof(Node));
 		newNode->data = *newPet;
 
@@ -100,7 +109,7 @@ void insertPets(Node** headPtr) {
 		Node* previousNode = NULL;
 		while (!insert) {
 
-			if ((stringCompare(&currentNode->data, &newNode->data) > 0 )||(currentNode = NULL)) {
+			if ((stringCompare(&currentNode->data, &newNode->data) > 0 )||(currentNode->nextPtr == NULL)) {
 
 				newNode->nextPtr = currentNode;
 				insert = true;
@@ -108,6 +117,11 @@ void insertPets(Node** headPtr) {
 				if (previousNode != NULL) {
 
 					previousNode->nextPtr = newNode;
+				}
+
+				else {
+
+					*headPtr = currentNode;
 				}
 			}
 
@@ -121,19 +135,21 @@ void insertPets(Node** headPtr) {
 		puts("");
 		puts("Do you want to add another pet? Please enter (y)es or (n)o:");
 		scanf(" %c", &addingPets);
+		getchar();
 	}
 }
 
 void displayPets(Node** headPtr) {
 
-	Node *currentNode = *headPtr;
 	puts("The names in alphebetical order:");
-	if (head != NULL) {
+	if (*headPtr != NULL) {
 
+		Node* currentNode = *headPtr;
 		do {
 
 			Pet* currentPet = &currentNode->data;
-			printf("%s is %d years old\n", &currentPet->name, &currentPet->age);
+			printf("%s is %d years old\n", currentPet->name, currentPet->age);
+			currentNode = currentNode->nextPtr;
 		} while (currentNode->nextPtr != NULL);
 	}
 
@@ -148,40 +164,46 @@ void writeToFile(Node** headPtr) {
 	FILE* filePtr;
 	filePtr = fopen("pets.txt", "w");
 
-	Node* currentNode = &head;
+	Node* currentNode = *headPtr;
 	do {
 
 		Pet* currentPet = &currentNode->data;
-		printf("%s is %d years old\n", &currentPet->name, &currentPet->age);
+		fprintf(filePtr, "%s is %d years old\n", currentPet->name, currentPet->age);
 	} while (currentNode->nextPtr != NULL);
 }
 
 void removePets(Node** headPtr) {
 
-	char removingPets = "y";
+	char removingPets;
 	puts("");
 	puts("Do you want to remove a pet? Please enter (y)es or (n)o:");
-	fgets(removingPets, 1, stdin);
+	fgets(&removingPets, 1, stdin);
 
 	while (removingPets == ("y"||"Y")) {
 
-		Pet *removePet = NULL;
+		Pet* removePet = malloc(sizeof(Pet));
 		puts("Enter name of pet to be removed:");
-		fgets(&removePet->name, STRING_LENGTH, stdin);
+		fgets(removePet->name, STRING_LENGTH, stdin);
 
-		Node* currentNode = &head;
+		Node* currentNode = *headPtr;
 		Node* previousNode = NULL;
 		bool petRemoved = false;
 		do {
 
-			if (stringCompare(currentNode, removePet) == 0) {
+			if (stringCompare(&currentNode->data, removePet) == 0) {
 
 				if (previousNode != NULL) {
 
 					previousNode->nextPtr = currentNode->nextPtr;
 					free(currentNode);
-					petRemoved = true;
 				}
+
+				else {
+
+					*headPtr = currentNode;
+				}
+
+				petRemoved = true;
 			}
 
 			else {
@@ -193,21 +215,22 @@ void removePets(Node** headPtr) {
 
 		if (!petRemoved) {
 
-			printf("\n%s is not found in the list", &removePet->name);
+			printf("\n%s is not found in the list", removePet->name);
 		}
 
 		puts("");
 		puts("Do you want to remove another pet? Please enter (y)es or (n)o:");
-		fgets(removingPets, 1, stdin);
+		fgets(&removingPets, 1, stdin);
 	}
 }
 
 void removeAllPets(Node** headPtr) {
 
 	puts("Removing all pets from memory...");
-	Node* currentNode = &head;
+	Node* currentNode = *headPtr;
 	Node* nextNode = NULL;
-	head = NULL;
+	*headPtr = NULL;
+
 	do {
 
 		nextNode = currentNode->nextPtr;
@@ -217,6 +240,3 @@ void removeAllPets(Node** headPtr) {
 	} while (currentNode->nextPtr != NULL);
 	free(currentNode);
 }
-
-//using malloc or by directly creating a Pet variable.
-// Difference between dynamic allocation and alternative?
