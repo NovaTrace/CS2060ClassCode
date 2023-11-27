@@ -42,11 +42,11 @@ typedef struct info {
 bool ownerLogin();
 void setPropertyInfo(Info* propertyInfo);
 int getValidInt(int min, int max, int sentinel);
-void printRentalPropertyInfo(Info* propertyInfo, int totalRenters, int surveyResults[][RENTER_SURVEY_CATEGORIES], char surveyCategories[][STRING_LENGTH]);
+void printRentalPropertyInfo(Info* propertyInfo, int totalRenters, int surveyResults[][RENTER_SURVEY_CATEGORIES], char* surveyCategories[]);
 double calculateCharges(unsigned int userInput, Info* propertyInfo);
 void printNightsCharges(unsigned int nights, double charges);
-void getRatings(int totalRenters, int surveyResults[][RENTER_SURVEY_CATEGORIES], char surveyCategories[][STRING_LENGTH]);
-void printOwnerReport(Info* propertyInfo, int surveyResults[][RENTER_SURVEY_CATEGORIES], char surveyCategories[][STRING_LENGTH], int totalRenters, int totalNights, double totalCost);
+void getRatings(int totalRenters, int surveyResults[][RENTER_SURVEY_CATEGORIES], char* surveyCategories[]);
+void printOwnerReport(Info* propertyInfo, int surveyResults[][RENTER_SURVEY_CATEGORIES], char* surveyCategories[], int totalRenters, int totalNights, double totalCost);
 
 int main(void) {
 
@@ -59,7 +59,7 @@ int main(void) {
 		double totalCost = 0;
 
 		int surveyResults[VACATION_RENTERS][RENTER_SURVEY_CATEGORIES];
-		char surveyCategories[RENTER_SURVEY_CATEGORIES][STRING_LENGTH] = { "Check-in Process", "Cleanliness", "Amenities" };
+		const char* surveyCategories[RENTER_SURVEY_CATEGORIES] = { "Check-in Process", "Cleanliness", "Amenities"};
 
 		Info propertyInfo1;
 		setPropertyInfo(&propertyInfo1);
@@ -101,6 +101,7 @@ int main(void) {
 		printOwnerReport(&propertyInfo1, surveyResults, surveyCategories, totalRenters, totalNights, totalCost);
 	}
 
+	puts("Exiting AirUCCS");
 	return 0;
 }
 
@@ -135,14 +136,9 @@ bool ownerLogin() {
 			puts("");
 		}
 
-		else if (attemptNum < 3) {
+		else if (attemptNum < LOGIN_MAX_ATTEMPTS) {
 
 			printf("%d failed attempts. Please try again\n\n", attemptNum);
-		}
-		
-		else {
-
-			puts("Exiting AirUCCS");
 		}
 	}
 
@@ -255,7 +251,7 @@ double calculateCharges(unsigned int userInput, Info* propertyInfo) {
 * Parameters: int ratings[]
 * Returns: void
 */
-void getRatings(int totalRenters, int surveyResults[][RENTER_SURVEY_CATEGORIES], char surveyCategories[][STRING_LENGTH]) {
+void getRatings(int totalRenters, int surveyResults[][RENTER_SURVEY_CATEGORIES], char* surveyCategories[]) {
 
 	puts("We want to know how your experience was renting our property.");
 	puts("Using the rating system 1 to 5 enter your rating for each category:");
@@ -278,14 +274,14 @@ void getRatings(int totalRenters, int surveyResults[][RENTER_SURVEY_CATEGORIES],
 * Parameters: Info *propertyInfo, int surveyResults[]
 * Returns: void
 */
-void printRentalPropertyInfo(Info* propertyInfo, int totalRenters, int surveyResults[][RENTER_SURVEY_CATEGORIES], char surveyCategories[][STRING_LENGTH]) {
+void printRentalPropertyInfo(Info* propertyInfo, int totalRenters, int surveyResults[][RENTER_SURVEY_CATEGORIES], char* surveyCategories[]) {
 
 	printf("\n-------------------------------------------------\nName: %s", propertyInfo->name);
 	printf("Location: %s\n", propertyInfo->location);
 	printf("- Rental propert can be rented for %d to %d nights.\n", MIN_RENTAL_NIGHTS, MAX_RENTAL_NIGHTS);
-	printf("- $%3.f rate a night for the first %d nights.\n", propertyInfo->rate, propertyInfo->interval1);
-	printf("- $%3.f discounted rate a night for nights %d to %d.\n", propertyInfo->rate - propertyInfo->discount, propertyInfo->interval1 + 1, propertyInfo->interval2);
-	printf("- $%3.f discounted rate for each remaining night over %d.\n\n", propertyInfo->rate - propertyInfo->discount * 2, propertyInfo->interval2);
+	printf("- $%.f rate a night for the first %d nights.\n", propertyInfo->rate, propertyInfo->interval1);
+	printf("- $%.f discount for nights %d to %d.\n", propertyInfo->discount, propertyInfo->interval1 + 1, propertyInfo->interval2);
+	printf("- $%.f discount for each remaining night over %d.\n\n", propertyInfo->discount * 2, propertyInfo->interval2);
 
 	puts("Survey Results:");
 
@@ -304,11 +300,11 @@ void printRentalPropertyInfo(Info* propertyInfo, int totalRenters, int surveyRes
 
 		for (int i = 0; i < totalRenters; i++) {
 
-			printf("\nSurvey %d:\t\t\t", i + 1);
+			printf("\nSurvey %d:\t\t  ", i + 1);
 
 			for (int j = 0; j < RENTER_SURVEY_CATEGORIES; j++) {
 
-				printf("%d%*s", surveyResults[i][j], strlen(surveyCategories[j]), "\t");
+				printf("%d%*s", surveyResults[i][j], strlen(surveyCategories[j]), "\t  ");
 			}
 		}
 	}
@@ -331,7 +327,7 @@ void printNightsCharges(unsigned int nights, double charges) {
 * Parameters: Info* propertyInfo, int surveyResults[][], char surveyCategories[][STRING_LENGTH], int totalRenters, int totalNights, double totalCost
 * Returns: void
 */
-void printOwnerReport(Info* propertyInfo, int surveyResults[][RENTER_SURVEY_CATEGORIES], char surveyCategories[][STRING_LENGTH], int totalRenters, int totalNights, double totalCost) {
+void printOwnerReport(Info* propertyInfo, int surveyResults[][RENTER_SURVEY_CATEGORIES], char* surveyCategories[], int totalRenters, int totalNights, double totalCost) {
 
 	puts("--------------------------------");
 	puts("Rental Property Report:");
@@ -361,7 +357,6 @@ void printOwnerReport(Info* propertyInfo, int surveyResults[][RENTER_SURVEY_CATE
 
 	puts("--------------------------------");
 	puts("");
-	puts("Exiting AirUCCS");
 }
 
 
