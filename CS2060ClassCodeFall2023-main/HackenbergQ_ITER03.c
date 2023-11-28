@@ -32,7 +32,6 @@
 
 // Property struct
 typedef struct property {
-	int totalRenters;
 	int interval1;
 	int interval2;
 	double rate;
@@ -40,6 +39,9 @@ typedef struct property {
 	char name[STRING_LENGTH];
 	char location[STRING_LENGTH];
 	int surveyResults[VACATION_RENTERS][RENTER_SURVEY_CATEGORIES];
+	int totalRenters;
+	int totalNights;
+	double totalCost;
 } Property;
 
 // Node struct
@@ -54,12 +56,11 @@ void setPropertyInfo(Node** headPtr);
 void insertProperty(Property* newProperty, Node** headPtr);
 int compareStrings(char inputChar1[], char inputChar2[]);
 int getValidInt(int min, int max, int sentinel);
-void printRentalPropertyInfo(Node** headPtr, char* surveyCategories[]);
+void printRentalPropertyInfo(Node** headPtr, const char* surveyCategories[]);
 Node* getRentalLocation(Node** headPtr);
 double calculateCharges(unsigned int userInput, Property* propertyInfo);
-void printNightsCharges(unsigned int nights, double charges);
-void getRatings(Property* selectedProperty, char* surveyCategories[]);
-void printOwnerReport(Node** headPtr, char* surveyCategories[], int totalNights, double totalCost);
+void getRatings(Property* selectedProperty, const char* surveyCategories[]);
+void printOwnerReport(Node** headPtr, const char* surveyCategories[]);
 
 int main(void) {
 
@@ -67,19 +68,18 @@ int main(void) {
 
 	bool rentalMode = true;
 	int userInput;
-	int totalNights = 0;
-	double totalCost = 0;
 
 	if (ownerLogin()) {
 
 		Node* head = malloc(sizeof(Node));
 		Node** headPtr = &head;
+		head = NULL;
 
 		setPropertyInfo(headPtr);
 
 		// Main Rental loop
 		do {
-			
+
 			printRentalPropertyInfo(headPtr, surveyCategories);
 			Node* selectedLocation = getRentalLocation(headPtr);
 
@@ -89,11 +89,11 @@ int main(void) {
 			if ((userInput != SENTINAL_NEG1) && (selectedLocation->data.totalRenters < VACATION_RENTERS)) {
 
 				double cost = calculateCharges(userInput, &selectedLocation->data);
-				printNightsCharges(userInput, cost);
+				printf("\nNights\tCharge\n%d\t$%.0f\n--------------\n\n", userInput, cost);
 				getRatings(&selectedLocation->data, surveyCategories);
 
-				totalNights += userInput;
-				totalCost += cost;
+				selectedLocation->data.totalNights += userInput;
+				selectedLocation->data.totalCost += cost;
 				selectedLocation->data.totalRenters++;
 			}
 			
@@ -112,7 +112,7 @@ int main(void) {
 
 		} while (rentalMode);
 
-		printOwnerReport(headPtr, surveyCategories, totalNights, totalCost);
+		printOwnerReport(headPtr, surveyCategories);
 	}
 
 	puts("Exiting AirUCCS");
@@ -211,6 +211,8 @@ void setPropertyInfo(Node** headPtr) {
 		Property* newProperty = malloc(sizeof(Property));
 
 		newProperty->totalRenters = 0;
+		newProperty->totalNights = 0;
+		newProperty->totalCost = 0;
 
 		puts("Enter the number of nights until the first discount:");
 		newProperty->interval1 = getValidInt(MIN_RENTAL_NIGHTS, MAX_RENTAL_NIGHTS, SENTINAL_NEG1);
@@ -238,11 +240,12 @@ void setPropertyInfo(Node** headPtr) {
 		insertProperty(newProperty, headPtr);
 
 		puts("");
-		puts("Type (y)es or (n)o to add another property:");
+		puts("Type (y)es to add another property:");
 
 		scanf(" %c", &addProperty);
 		addProperty = tolower(addProperty);
 		while ((getchar()) != '\n');
+		puts("");
 	}
 
 }
@@ -255,23 +258,33 @@ void setPropertyInfo(Node** headPtr) {
 void insertProperty(Property* newProperty, Node** headPtr) {
 
 	bool insert = true;
-	Node* newNode = malloc(sizeof(Node));
 	Node* currentNode = *headPtr;
 	Node* previousNode = NULL;
 
+	Node* newNode = malloc(sizeof(Node));
+	newNode->data = *newProperty;
+	newNode->nextPtr = NULL;
+
 	while (insert) {
 
-		if (compareStrings(&newNode->data.name, &currentNode->data.name) < 0) {
+		if (*headPtr == NULL) {
+
+			*headPtr = newNode;
+			insert = false;
+		}
+
+		else if (currentNode == NULL) {
+
+			previousNode->nextPtr = newNode;
+			insert = false;
+		}
+
+		else if (compareStrings(&newNode->data.name, &currentNode->data.name) < 0) {
 
 			if (currentNode == *headPtr) {
 
 				newNode->nextPtr = currentNode;
 				*headPtr = newNode;
-			}
-
-			else if (currentNode == NULL) {
-
-				previousNode->nextPtr = newNode;
 			}
 
 			else {
@@ -292,68 +305,80 @@ void insertProperty(Property* newProperty, Node** headPtr) {
 }
 
 /*
-* Compares the names of 2 properties
-* Parameters: Property* newProperty, Property* nodeProperty
+* Compares 2 strings
+* Parameters: char inputChar1[], char inputChar2[]
 * Returns: An int representing respective difference between the two strings
 */
 int compareStrings(char inputChar1[], char inputChar2[]) {
 
-	//char tempChar1[STRING_LENGTH];
-	//char tempChar2[STRING_LENGTH];
+	char tempChar1[STRING_LENGTH];
+	char tempChar2[STRING_LENGTH];
 
-	//strcpy(tempChar1, inputChar1);
-	//strcpy(tempChar2, inputChar2);
+	strncpy(tempChar1, inputChar1, STRING_LENGTH - 1);
+	strncpy(tempChar2, inputChar2, STRING_LENGTH - 1);
 
 	int i = 0;
 	do {
 
-		inputChar1[i] = tolower(inputChar1[i]);
+		tempChar1[i] = tolower(tempChar1[i]);
 		i++;
-	} while (inputChar1[i] != '\0');
+	} while (tempChar1[i] != '\0');
 
 	i = 0;
 	do {
 
-		inputChar2[i] = tolower(inputChar2[i]);
+		tempChar2[i] = tolower(tempChar2[i]);
 		i++;
-	} while (inputChar2[i] != '\0');
+	} while (tempChar2[i] != '\0');
 
-	return strcmp(inputChar1, inputChar2);
+	return strcmp(tempChar1, tempChar2);
 }
 
+/*
+* Compare input to availiable names and returns once a match is found
+* Parameters: Node** headPtr
+* Returns: The Node containing the matching name
+*/
 Node* getRentalLocation(Node** headPtr) {
 
-	Node* currentNode = *headPtr;
+	Node* previousNode = NULL;
 	int compareResult = 1;
 	char nameInput[STRING_LENGTH];
 
 	while (compareResult != 0) {
 
-		do {
+		puts("Enter the name of the property you want to rent:");
+		fgets(nameInput, STRING_LENGTH, stdin);
 
-			fgets(nameInput, STRING_LENGTH, stdin);
+		Node* currentNode = *headPtr;
+		previousNode = NULL;
+
+		do {
+			
 			compareResult = compareStrings(nameInput, currentNode->data.name);
+			previousNode = currentNode;
 			currentNode = currentNode->nextPtr;
 
 		} while ((compareResult != 0) && (currentNode != NULL));
 		
 		if (compareResult != 0) {
 
-			puts("Error: The property you entered doesn’t match. Enter the property again.");
+			puts("Error: The property you entered doesn't match.");
+			puts("");
 		}
 	}
 
-	return currentNode;
+	return previousNode;
 } // Computationally inefficient, should use premade array of lowercase names
 
 /*
 * Determines the total cost for total amount of nights selected
-* Parameters: int nights, int interval1Nights, int interval2Nights, double rate, double discount
+* Parameters: unsigned int userInput, Property* propertyInfo
 * Returns: A double representing the total cost
 */
 double calculateCharges(unsigned int userInput, Property* propertyInfo) {
 
-	int currentCost = 0;
+	double currentCost = 0;
 
 	if (userInput <= propertyInfo->interval1) {
 
@@ -381,7 +406,7 @@ double calculateCharges(unsigned int userInput, Property* propertyInfo) {
 * Parameters: Property* selectedProperty, char* surveyCategories[]
 * Returns: void
 */
-void getRatings(Property* selectedProperty, char* surveyCategories[]) {
+void getRatings(Property* selectedProperty, const char* surveyCategories[]) {
 
 	puts("We want to know how your experience was renting our property.");
 	puts("Using the rating system 1 to 5 enter your rating for each category:");
@@ -400,11 +425,11 @@ void getRatings(Property* selectedProperty, char* surveyCategories[]) {
 }
 
 /*
-* Displays the relevant Property for the rental property
-* Parameters: Property *propertyInfo, int surveyResults[]
+* Displays the relevant info for the rental property
+* Parameters: Node** headPtr, char* surveyCategories[]
 * Returns: void
 */
-void printRentalPropertyInfo(Node** headPtr, char* surveyCategories[]) {
+void printRentalPropertyInfo(Node** headPtr, const char* surveyCategories[]) {
 
 	Node* currentNode = *headPtr;
 	while (currentNode != NULL) {
@@ -441,6 +466,7 @@ void printRentalPropertyInfo(Node** headPtr, char* surveyCategories[]) {
 				}
 			}
 		}
+		currentNode = currentNode->nextPtr;
 		puts("");
 	}
 
@@ -448,56 +474,54 @@ void printRentalPropertyInfo(Node** headPtr, char* surveyCategories[]) {
 }
 
 /*
-* Displays the nights and total cost passed to the function
-* Parameters: int nights, double charges
+* Displays all pertinent data as a close to the program, calculates rating averages. Runs for each property
+* Parameters: Node** headPtr, const char* surveyCategories[]
 * Returns: void
 */
-void printNightsCharges(unsigned int nights, double charges) {
+void printOwnerReport(Node** headPtr, const char* surveyCategories[]) {
 
-	printf("\nNights\tCharge\n%d\t$%.0f\n--------------\n\n", nights, charges);
-} // Currently vestigial function
-
-
-//fix this for headPtr. start on user story 4
-/*
-* Displays all pertinent data as a close to the program, calculates rating averages
-* Parameters: Property* propertyInfo, int surveyResults[][], char surveyCategories[][STRING_LENGTH], int totalRenters, int totalNights, double totalCost
-* Returns: void
-*/
-void printOwnerReport(Node** headPtr, char* surveyCategories[], int totalNights, double totalCost) {
-
-	puts("--------------------------------");
 	puts("Rental Property Report:");
-	printf("Name: %s", propertyInfo->name);
-	printf("Location: %s\n", propertyInfo->location);
-
-	puts("Rental Property Totals:");
-	puts("-----------------------");
-	puts("Renters	Nights	Charges");
-	printf("%d\t%d\t$%0.2f\n\n", totalRenters, totalNights, totalCost);
-
-
-
-	puts("Category Rating Averages");
-	puts("------------------------");
-
-	for (int i = 0; i < RENTER_SURVEY_CATEGORIES; i++) {
-
-		int ratingSum = 0;
-		for (int j = 0; j < totalRenters; j++) {
-
-			ratingSum += surveyResults[j][i];
-		}
-		
-		printf("%s: %0.1f\n", surveyCategories[i], (float)ratingSum/totalRenters);
-	}
-
-	puts("--------------------------------");
+	puts("-------------------------------------------");
 	puts("");
-}
+	Node* currentNode = *headPtr;
+	while (currentNode != NULL) {
 
-// Do functions need to define column count in 2D arrays they take
-// Printing out a string from a string array using character call or pointers?
-// Initializing char* (userID etc) with '=NULL'?
-// Alternative to generics to call getValid_ for ints vs doubles
-// getRatings crashes if called after array is full. main prevents call. Should function have internal crash prevention
+		
+
+		printf("Name: %s", currentNode->data.name);
+		printf("Location: %s\n", currentNode->data.location);
+
+		puts("Rental Property Totals:");
+		puts("-----------------------");
+		puts("Renters	Nights	Charges");
+		printf("%d\t%d\t$%0.2f\n\n", currentNode->data.totalRenters, currentNode->data.totalNights, currentNode->data.totalCost);
+
+		puts("Category Rating Averages");
+		puts("------------------------");
+
+		if (currentNode->data.totalRenters != 0) {
+
+			for (int i = 0; i < RENTER_SURVEY_CATEGORIES; i++) {
+
+				int ratingSum = 0;
+				for (int j = 0; j < currentNode->data.totalRenters; j++) {
+
+					ratingSum += currentNode->data.surveyResults[j][i];
+				}
+
+				printf("%s: %0.1f\n", surveyCategories[i], (float)ratingSum / currentNode->data.totalRenters);
+			}
+		}
+
+		else {
+
+			puts("No Ratings");
+		}
+
+		puts("-------------------------------");
+		puts("-------------------------------");
+		puts("");
+
+		currentNode = currentNode->nextPtr;
+	}
+}
