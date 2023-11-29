@@ -582,7 +582,6 @@ void printToFile(Node** headPtr, const char* surveyCategories[]) {
 				fprintf(filePtr, "No Ratings");
 			}
 
-			fprintf(filePtr,"\n-------------------------------\n-------------------------------");
 			fclose(filePtr);
 			printf("Wrote to file %s\n", filePath);
 		}
