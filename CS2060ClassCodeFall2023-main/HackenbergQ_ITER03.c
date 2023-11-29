@@ -2,7 +2,7 @@
 //Class: CS2060 T/R 1:40PM - 2:55PM 
 //Windows OS
 //Description: Rental property interface for owners and renters. Includes an owner sign in, property set-up, 
-//limited user rentals, user ratings and password protected program exit with data summery
+//limited user rentals, user ratings and password protected program exit with data summery and file output
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,6 +12,7 @@
 
 // Maximum length of a string
 #define STRING_LENGTH 80
+#define FILE_PATH_SEGMENT "C:\\Users\\quinn\\OneDrive\\Documents\\UCCS\\2023 Fall\\CS 2060\\Projects\\Properties\\"
 // Two dimensional array storage amounts for rows and columns of surve data
 #define VACATION_RENTERS 5
 #define RENTER_SURVEY_CATEGORIES 3
@@ -61,6 +62,7 @@ Node* getRentalLocation(Node** headPtr);
 double calculateCharges(unsigned int userInput, Property* propertyInfo);
 void getRatings(Property* selectedProperty, const char* surveyCategories[]);
 void printOwnerReport(Node** headPtr, const char* surveyCategories[]);
+void printToFile(Node** headPtr, const char* surveyCategories[]);
 
 int main(void) {
 
@@ -113,8 +115,10 @@ int main(void) {
 		} while (rentalMode);
 
 		printOwnerReport(headPtr, surveyCategories);
+		printToFile(headPtr, surveyCategories);
 	}
 
+	puts("");
 	puts("Exiting AirUCCS");
 	return false;
 }
@@ -317,19 +321,15 @@ int compareStrings(char inputChar1[], char inputChar2[]) {
 	strncpy(tempChar1, inputChar1, STRING_LENGTH - 1);
 	strncpy(tempChar2, inputChar2, STRING_LENGTH - 1);
 
-	int i = 0;
-	do {
+	for (int i = 0; tempChar1[i] != '\0'; i++) {
 
 		tempChar1[i] = tolower(tempChar1[i]);
-		i++;
-	} while (tempChar1[i] != '\0');
+	}
 
-	i = 0;
-	do {
+	for (int i = 0; tempChar2[i] != '\0'; i++) {
 
 		tempChar2[i] = tolower(tempChar2[i]);
-		i++;
-	} while (tempChar2[i] != '\0');
+	}
 
 	return strcmp(tempChar1, tempChar2);
 }
@@ -521,6 +521,75 @@ void printOwnerReport(Node** headPtr, const char* surveyCategories[]) {
 		puts("-------------------------------");
 		puts("-------------------------------");
 		puts("");
+
+		currentNode = currentNode->nextPtr;
+	}
+}
+
+/*
+* Writes all pertinent data to a file, calculates rating averages. Runs for each property
+* Parameters: Node** headPtr, const char* surveyCategories[]
+* Returns: void
+*/
+void printToFile(Node** headPtr, const char* surveyCategories[]) {
+
+	Node* currentNode = *headPtr;
+	while (currentNode != NULL) {
+
+		char tempName[STRING_LENGTH];
+		strncpy(tempName, currentNode->data.name, STRING_LENGTH - 1);
+
+		tempName[strcspn(tempName, "\n")] = '\0';
+
+		for (int i = 0; tempName[i] != '\0'; i++) {
+
+			if (isspace(tempName[i])) {
+				tempName[i] = '_';
+			}
+		}
+
+		char filePath[STRING_LENGTH * 10];
+		filePath[0] = '\0';
+
+		strcat(filePath, FILE_PATH_SEGMENT);
+		strcat(filePath, tempName);
+		strcat(filePath, ".txt");
+		FILE* filePtr = fopen(filePath, "w");
+
+		if (filePtr != NULL) {
+			
+			fprintf(filePtr, "Rental Property Report:\n-------------------------------------------\n\nName: %s\n", currentNode->data.name);
+			fprintf(filePtr, "Location: %s\nRental Property Totals:\n-----------------------\nRenters	Nights	Charges\n", currentNode->data.location);
+
+			fprintf(filePtr, "%d\t%d\t$%0.2f\n\nCategory Rating Averages\n------------------------\n", currentNode->data.totalRenters, currentNode->data.totalNights, currentNode->data.totalCost);
+
+			if (currentNode->data.totalRenters != 0) {
+
+				for (int i = 0; i < RENTER_SURVEY_CATEGORIES; i++) {
+
+					int ratingSum = 0;
+					for (int j = 0; j < currentNode->data.totalRenters; j++) {
+
+						ratingSum += currentNode->data.surveyResults[j][i];
+					}
+
+					fprintf(filePtr, "%s: %0.1f\n", surveyCategories[i], (float)ratingSum / currentNode->data.totalRenters);
+				}
+			}
+
+			else {
+
+				fprintf(filePtr, "No Ratings");
+			}
+
+			fprintf(filePtr,"\n-------------------------------\n-------------------------------");
+			fclose(filePtr);
+			printf("Wrote to file %s\n", filePath);
+		}
+
+		else {
+			printf("Error opening file for %s\n", currentNode->data.name);
+		}
 
 		currentNode = currentNode->nextPtr;
 	}
