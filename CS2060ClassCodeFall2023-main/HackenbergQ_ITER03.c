@@ -12,7 +12,7 @@
 
 // Maximum length of a string
 #define STRING_LENGTH 80
-#define FILE_PATH_SEGMENT "C:\\Users\\quinn\\OneDrive\\Documents\\UCCS\\2023 Fall\\CS 2060\\Projects\\Properties\\"
+#define FILE_FOLDER "C:\\Users\\quinn\\OneDrive\\Documents\\UCCS\\2023 Fall\\CS 2060\\Projects\\Properties\\"
 // Two dimensional array storage amounts for rows and columns of surve data
 #define VACATION_RENTERS 5
 #define RENTER_SURVEY_CATEGORIES 3
@@ -551,7 +551,7 @@ void printToFile(Node** headPtr, const char* surveyCategories[]) {
 		char filePath[STRING_LENGTH * 10];
 		filePath[0] = '\0';
 
-		strcat(filePath, FILE_PATH_SEGMENT);
+		strcat(filePath, FILE_FOLDER);
 		strcat(filePath, tempName);
 		strcat(filePath, ".txt");
 		FILE* filePtr = fopen(filePath, "w");
