@@ -63,6 +63,7 @@ double calculateCharges(unsigned int userInput, Property* propertyInfo);
 void getRatings(Property* selectedProperty, const char* surveyCategories[]);
 void printOwnerReport(Node** headPtr, const char* surveyCategories[]);
 void printToFile(Node** headPtr, const char* surveyCategories[]);
+void freeMemory(Node** headPtr);
 
 int main(void) {
 
@@ -116,6 +117,7 @@ int main(void) {
 
 		printOwnerReport(headPtr, surveyCategories);
 		printToFile(headPtr, surveyCategories);
+		freeMemory(headPtr);
 	}
 
 	puts("");
@@ -591,5 +593,22 @@ void printToFile(Node** headPtr, const char* surveyCategories[]) {
 		}
 
 		currentNode = currentNode->nextPtr;
+	}
+}
+
+/*
+* Frees all memory utilized by the linked list
+* Parameters: Node** headPtr
+* Returns: void
+*/
+void freeMemory(Node** headPtr) {
+
+	Node* current = *headPtr;
+	Node* previous = NULL;
+	while (current != NULL) {
+
+		previous = current;
+		current = current->nextPtr;
+		free(previous);
 	}
 }

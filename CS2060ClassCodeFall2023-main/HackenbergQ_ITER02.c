@@ -12,11 +12,11 @@
 #define STRING_LENGTH 80
 // Two dimensional array storage amounts for rows and columns of surve data
 #define VACATION_RENTERS 5
-#define RENTER_SURVEY_CATEGORIES 3
+#define RENTER_SURVEY_CATEGORIES 4
 // Rental property login and sentinal values
-#define CORRECT_ID "id1"
-#define CORRECT_PASSCODE "ABCD"
-#define LOGIN_MAX_ATTEMPTS 3
+#define CORRECT_ID "id"
+#define CORRECT_PASSCODE "ab"
+#define LOGIN_MAX_ATTEMPTS 2
 #define SENTINAL_NEG1 -1
 // Rental property constant ranges
 #define MIN_RENTAL_NIGHTS 1
@@ -59,7 +59,7 @@ int main(void) {
 		double totalCost = 0;
 
 		int surveyResults[VACATION_RENTERS][RENTER_SURVEY_CATEGORIES];
-		const char* surveyCategories[RENTER_SURVEY_CATEGORIES] = { "Check-in Process", "Cleanliness", "Amenities"};
+		const char* surveyCategories[RENTER_SURVEY_CATEGORIES] = { "Check-in Process", "Cleanliness", "Amenities", "cat4"};
 
 		Info propertyInfo1;
 		setPropertyInfo(&propertyInfo1);
